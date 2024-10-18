@@ -1,0 +1,12 @@
+Rapport TP Algorithmique
+
+Exercices faits : Exercice 1, Exercice 3, Exercice 4
+Pour l'exercice 1, nous avons utilisé la programmation dynamique en s'inspirant de l'exercice vu en cours/TD.
+Pour l'exercice 3, nous avons utilisé l'algorithme union-find avec soit une matrice, soit une liste.
+Pour l'exercice 4, nous avons utlisé le parcours en profondeur pour trouver les composantes connexees d'un graphe. 
+
+Exercice posant des difficultés : Exercice 2
+Nous n'avons pas trouvé une solution fonctionnant avec la programmation dynamique. Mais seulement avec une méthode récursive. 
+
+Exercice non abordé : Exercice 5
+Nous n'avons pas eu le temps d'aborder l'exercice 5
