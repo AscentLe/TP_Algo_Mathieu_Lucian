@@ -14,7 +14,7 @@ typedef struct {
 
 // Initialisation de la structure Union-Find
 void init_unionfind(UnionFind *uf, int n) {
-    for (int i = 1; i <= n; i++) { // Commencer à 1
+    for (int i = 1; i <= n; i++) { 
         uf->parent[i] = i;
         uf->rank[i] = 0;
     }

@@ -1,0 +1,5 @@
+composante connexe 1
+1 2 
+composante connexe 2
+3 5 4 
+nb de composantes connexes 2
