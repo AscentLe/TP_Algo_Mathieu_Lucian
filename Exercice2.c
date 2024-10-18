@@ -1,9 +1,11 @@
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h> 
+
+#include "stdio.h"
+#include "stdlib.h"
 #define MAX_N 100
+
+int checksum(int* A, int* removedIndexList, int indexListSize, int aSum, int k);
+void recFind(int* A, int aSize, int* removedIndexList, int depth, int aSum, int k, int* bestRemovedIndexList, int* bestDepth);
+
 void read_input_ex2(const char* filename, int* sequence, int* n, int* k) {
     FILE* file = fopen(filename, "r");
     if (!file) {
@@ -12,9 +14,9 @@ void read_input_ex2(const char* filename, int* sequence, int* n, int* k) {
     }
 
     fscanf(file, "%d", n);  
-    fscanf(file, "%d", k); 
+    fscanf(file, "%d", k);  
     for (int i = 0; i < *n; i++) {
-        fscanf(file, "%d", &sequence[i]);  
+        fscanf(file, "%d", &sequence[i]); 
     }
 
     fclose(file);
@@ -33,7 +35,6 @@ void write_output_ex2(const char* filename, int* lis, int lis_length) {
         fprintf(file, "res[%d] = %d", i, lis[i]);  
     }
     fprintf(file, "\n");
-
     int sum = 0;
     for (int i = 0; i < lis_length; i++){
         sum += lis[i];
@@ -42,85 +43,89 @@ void write_output_ex2(const char* filename, int* lis, int lis_length) {
     fclose(file);
 }
 
-
-
-
-void question2();
-void findBestSubset(int* A, int aSize, int k, int* bestRemovedIndexList, int* bestDepth);
-bool isValid(int* removedIndexList, int depth, int index);
-
-void question2(){
-    int k;
-    int A[MAX_N];
-    int aSize;
-
-    read_input_ex2("INPDIVSEQ.txt", A, &aSize, &k);
-
-    int bestRemovedIndexList[MAX_N];
-    int bestDepth = 0; 
-    findBestSubset(A, aSize, k, bestRemovedIndexList, &bestDepth);
-
-    int resSize = aSize - bestDepth; 
-    int res[resSize];
-
-    int count = 0;
-    for (int i = 0; i < aSize; i++){
-        if (!isValid(bestRemovedIndexList, bestDepth, i)){
-            res[count++] = A[i];
-        }
+int checksum(int* A, int* removedIndexList, int removedIndexListSize, int aSum, int k){
+    for (int i = 0; i < removedIndexListSize; i++){
+        aSum -= A[removedIndexList[i]];
     }
-
-    write_output_ex2("OUTDIVSEQ.txt", res, resSize);
+    return (aSum % k == 0);
 }
 
-void findBestSubset(int* A, int aSize, int k, int* bestRemovedIndexList, int* bestDepth) {
-    // Utilisation d'un tableau pour mémoriser les états
-    bool dp[MAX_N][MAX_N]; // dp[i][j] = true si la somme j peut être obtenue en retirant les indices dans {0, ..., i}
-    memset(dp, false, sizeof(dp)); 
-
-    dp[0][0] = true; 
-
-    for (int i = 0; i < aSize; i++) {
-        for (int j = 0; j <= *bestDepth; j++) {
-            // Cas où l'on ne retire pas l'élément A[i]
-            if (j == 0 || dp[i][j - 1]) {
-                dp[i + 1][j] = true; // On peut obtenir la même somme sans l'élément
-            }
-            // Cas où l'on retire l'élément A[i]
-            if (j < aSize) {
-                dp[i + 1][j + 1] = dp[i][j]; // On peut obtenir la somme j + 1 en retirant A[i]
-            }
+void recFind(int* A, int aSize, int* removedIndexList, int depth, int aSum, int k, int* bestRemovedIndexList, int* bestDepth){
+    if (depth > *bestDepth){
+        return; // Ne pas continuer si on a déjà trouvé une meilleure solution
+    }
+    else if (checksum(A, removedIndexList, depth, aSum, k)){
+        *bestDepth = depth;
+        for (int i = 0; i < depth; i++){
+            bestRemovedIndexList[i] = removedIndexList[i];
         }
     }
-
-    // Recherche du meilleur sous-ensemble
-    for (int j = 0; j < aSize; j++) {
-        if (dp[aSize][j] && (aSize - j) % k == 0) {
-            if (j > *bestDepth) {
-                *bestDepth = j; // Mettre à jour la meilleure profondeur
-                // Sauvegarder les indices retirés
-                int idx = 0;
-                for (int i = 0; i < aSize; i++) {
-                    if (!isValid(bestRemovedIndexList, j, i)) {
-                        bestRemovedIndexList[idx++] = i; // Ajouter l'indice retiré
-                    }
+    else{
+        for (int j = 0; j < aSize; j++){
+            // Vérifier si l'indice a déjà été retiré
+            int alreadyRemoved = 0;
+            for (int i = 0; i < depth; i++) {
+                if (removedIndexList[i] == j) {
+                    alreadyRemoved = 1;
+                    break;
                 }
             }
-        }
+            if (!alreadyRemoved){
+                removedIndexList[depth] = j;  // Utiliser depth comme niveau actuel
+                recFind(A, aSize, removedIndexList, depth + 1, aSum, k, bestRemovedIndexList, bestDepth);
+            }
+        }        
     }
-}
-
-bool isValid(int* removedIndexList, int depth, int index) {
-    for (int i = 0; i < depth; i++) {
-        if (removedIndexList[i] == index) {
-            return true; 
-        }
-    }
-    return false; 
 }
 
 
 int main(){
-    question2();
+    int k;
+    int A[MAX_N];
+    int aSize;
+    read_input_ex2("INPDIVSEQ.txt", A, &aSize, &k);
+
+    int removedIndexList[aSize];
+    int bestRemovedIndexList[aSize];
+    int aSum = 0;
+    int bestDepth = aSize;
+    for (int i = 0; i < aSize; i++){
+        removedIndexList[i] = -1;  // -1 pour indiquer que cet indice n'est pas encore utilisé
+        bestRemovedIndexList[i] = -1;  // Initialiser avec -1
+        aSum += A[i];
+    }
+
+    if (k == 0){ // cas d'une division par 0
+        printf("Vous essayez de diviser par 0 : pas de résultat.\n");
+        return 0;
+    }
+
+    if (aSize == 0){ // cas d'une liste A vide
+        printf("Tableau vide.\n");
+        return 0;
+    }
+    // Appel de la fonction récursive pour chercher le meilleur sous-ensemble
+    recFind(A, aSize, removedIndexList, 0, aSum, k, bestRemovedIndexList, &bestDepth);
+
+    int resSize = aSize - bestDepth; 
+    int res[resSize];
+
+    int removedIndex; // Variable pour vérifier si l'indice est un élément retiré ou non
+    int count = 0; // Indice pour écrire les valeurs dans res
+    for (int i = 0; i < aSize; i++){
+        removedIndex = 0;
+        for (int j = 0; j < bestDepth; j++){
+            if (i == bestRemovedIndexList[j]){
+                removedIndex = 1;
+                break;
+            }
+        }
+        if (!removedIndex){
+            res[count] = A[i];
+            count++;
+        }
+    }
+    write_output_ex2("OUTDIVSEQ.txt", res, resSize);
+
     return 0;
 }
