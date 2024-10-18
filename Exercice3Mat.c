@@ -62,6 +62,30 @@ void readInpFile(const char *fileName, int *n, int *m, Arete edges[]) {
     fclose(file);
 }
 
+void readInpFileMatrix(const char *fileName, int *n, int *m, int adjMatrix[MAX][MAX]) {
+    FILE *file = fopen(fileName, "r");
+    if (file == NULL) {
+        printf("Erreur lors de l'ouverture du fichier %s\n", fileName);
+        exit(1);
+    }
+
+    fscanf(file, "%d %d", n, m);
+    for (int i = 1; i <= *n; i++) {
+        for (int j = 1; j <= *n; j++) {
+            adjMatrix[i][j] = 0; // Initialiser la matrice
+        }
+    }
+
+    for (int i = 0; i < *m; i++) {
+        int u, v;
+        fscanf(file, "%d %d", &u, &v);
+        adjMatrix[u][v] = 1; // Ajouter l'arête (u, v)
+        adjMatrix[v][u] = 1; // Ajouter l'arête (v, u) pour le graphe non orienté
+    }
+
+    fclose(file);
+}
+
 void writeOutFile(const char *fileName, int m, Arete edges[]) {
     FILE *file = fopen(fileName, "w");
     if (file == NULL) {
@@ -76,33 +100,33 @@ void writeOutFile(const char *fileName, int m, Arete edges[]) {
     fclose(file);
 }
 
-void arbre_couvrant(int n, Arete edges[], int m) {
+void arbre_couvrant_matrix(int n, int adjMatrix[MAX][MAX]) {
     UnionFind uf;
     init_unionfind(&uf, n);
-
+    
     Arete arbre[MAX];  
     int count = 0;     
 
-    for (int i = 0; i < m; i++) {
-        int u = edges[i].u;
-        int v = edges[i].v;
-
-        if (find(&uf, u) != find(&uf, v)) {
-            arbre[count++] = edges[i];
-            union_set(&uf, u, v);
+    for (int u = 1; u <= n; u++) {
+        for (int v = u + 1; v <= n; v++) {
+            if (adjMatrix[u][v] == 1) { // Vérifier s'il y a une arête entre u et v
+                if (find(&uf, u) != find(&uf, v)) {
+                    arbre[count++] = (Arete){u, v}; // Ajouter l'arête à l'arbre
+                    union_set(&uf, u, v);
+                }
+            }
         }
     }
 
-    writeOutFile("OUTARBGRAPH.txt", count, arbre);
+    writeOutFile("OUTARBGRAPHMAT.txt", count, arbre);
 }
 
 int main() {
     int n, m;  
-    Arete edges[MAX]; 
+    int adjMatrix[MAX][MAX];
 
-    readInpFile("INPARBGRAPH.txt", &n, &m, edges);
-
-    arbre_couvrant(n, edges, m);
+    readInpFileMatrix("INPARBGRAPH.txt", &n, &m, adjMatrix);
+    arbre_couvrant_matrix(n, adjMatrix);
 
     return 0;
 }
