@@ -42,7 +42,6 @@ int minDistance(int dist[], int visited[], int n) {
     return min_index;
 }
 
-// Fonction pour imprimer le chemin trouvé
 void printPath(int parent[], int j, FILE *file) {
     if (parent[j] == -1) {
         return;
@@ -75,7 +74,7 @@ void dijkstra(int n, int adjMatrix[MAX][MAX], int start, int end) {
             }
         }
     }
-    // Écriture des résultats dans le fichier de sortie
+
     FILE *output = fopen("OUTDIJGRAPH.txt", "w");
     if (output == NULL) {
         printf("Erreur lors de l'ouverture du fichier de sortie\n");
