@@ -9,4 +9,4 @@ Exercice posant des difficultés : Exercice 2
 Nous n'avons pas trouvé une solution fonctionnant avec la programmation dynamique. Mais seulement avec une méthode récursive. 
 
 Exercice non abordé : Exercice 5
-Nous n'avons pas eu le temps d'aborder l'exercice 5
+Nous avons commencé l'exercice 5.
