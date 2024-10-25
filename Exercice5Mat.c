@@ -63,7 +63,6 @@ int minDistance(int dist[], int visited[], int n) {
     return min_index;
 }
 
-// Fonction pour imprimer le chemin trouvé
 void printPath(int parent[], int j, FILE *file) {
     if (parent[j] == -1) {
         return;
@@ -98,7 +97,7 @@ void dijkstraList(Graph* graph, int start, int end) {
             current = current->next;
         }
     }
-    // Écrire le résultat dans un fichier
+
     FILE *output = fopen("OUTDIJGRAPHMAT.txt", "w");
     if (output == NULL) {
         printf("Erreur lors de l'ouverture du fichier de sortie\n");
